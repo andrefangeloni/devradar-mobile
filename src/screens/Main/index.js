@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { PermissionsAndroid, Platform, Dimensions, Image } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  Platform,
+  Dimensions,
+  PermissionsAndroid,
+} from 'react-native';
 
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Callout } from 'react-native-maps';
 import Geolocation from 'react-native-geolocation-service';
 
 import styles from './styles';
@@ -11,7 +18,7 @@ const ASPECT_RATIO = width / height;
 const LATITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
-const Main = () => {
+const Main = ({ navigation }) => {
   const [currentRegion, setCurrentRegion] = useState(null);
   // const [latitude, setLatitude] = useState('');
   // const [longitude, setLongitude] = useState('');
@@ -59,8 +66,6 @@ const Main = () => {
 
   return (
     <MapView style={styles.mapView} initialRegion={currentRegion}>
-      {console.log('LAT', LATITUDE_DELTA)}
-      {console.log('LNG', LONGITUDE_DELTA)}
       <Marker coordinate={{ latitude: -22.9408845, longitude: -47.0680438 }}>
         <Image
           style={styles.avatar}
@@ -68,6 +73,18 @@ const Main = () => {
             uri: 'https://avatars3.githubusercontent.com/u/51930261?s=460&v=4',
           }}
         />
+        <Callout
+          onPress={() => {
+            navigation.navigate('Profile', {
+              github_username: 'andrefangeloni',
+            });
+          }}>
+          <View style={styles.callout}>
+            <Text style={styles.devName}>André Angeloni</Text>
+            <Text style={styles.devBio}>React Native Developer</Text>
+            <Text style={styles.devTechs}>React Native</Text>
+          </View>
+        </Callout>
       </Marker>
     </MapView>
   );

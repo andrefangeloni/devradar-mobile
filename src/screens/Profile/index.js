@@ -1,13 +1,17 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+
+import { WebView } from 'react-native-webview';
 
 // import styles from './styles';
 
-const Profile = () => {
+const Profile = ({ navigation }) => {
+  const githubUsername = navigation.getParam('github_username');
+
   return (
-    <View>
-      <Text>Profile</Text>
-    </View>
+    <WebView
+      showsVerticalScrollIndicator={false}
+      source={{ uri: `https://github.com/${githubUsername}` }}
+    />
   );
 };
 
