@@ -14,6 +14,8 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import Geolocation from 'react-native-geolocation-service';
 import MapView, { Marker, Callout } from 'react-native-maps';
 
+import api from '../../services/api';
+
 import styles from './styles';
 
 const { width, height } = Dimensions.get('window');
@@ -22,9 +24,9 @@ const LATITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 const Main = ({ navigation }) => {
+  const [devs, setDevs] = useState([]);
   const [currentRegion, setCurrentRegion] = useState(null);
-  // const [latitude, setLatitude] = useState('');
-  // const [longitude, setLongitude] = useState('');
+  const [techs, setTechs] = useState('');
 
   useEffect(() => {
     if (Platform.OS === 'android') {
@@ -67,30 +69,51 @@ const Main = ({ navigation }) => {
     }
   }
 
+  const onRegionChange = region => {
+    setCurrentRegion(region);
+  };
+
+  const loadDevs = async () => {
+    const { latitude, longitude } = currentRegion;
+
+    const response = await api.get('/search', {
+      params: {
+        latitude,
+        longitude,
+        techs,
+      },
+    });
+    setDevs(response.data.devs);
+  };
+
   return (
     <>
-      <MapView style={styles.mapView} initialRegion={currentRegion}>
-        <Marker coordinate={{ latitude: -22.9408845, longitude: -47.0680438 }}>
-          <Image
-            style={styles.avatar}
-            source={{
-              uri:
-                'https://avatars3.githubusercontent.com/u/51930261?s=460&v=4',
-            }}
-          />
-          <Callout
-            onPress={() => {
-              navigation.navigate('Profile', {
-                github_username: 'andrefangeloni',
-              });
+      <MapView
+        style={styles.mapView}
+        initialRegion={currentRegion}
+        onRegionChangeComplete={onRegionChange}>
+        {devs.map(item => (
+          <Marker
+            key={item._id}
+            coordinate={{
+              latitude: item.location.coordinates[1],
+              longitude: item.location.coordinates[0],
             }}>
-            <View style={styles.callout}>
-              <Text style={styles.devName}>André Angeloni</Text>
-              <Text style={styles.devBio}>React Native Developer</Text>
-              <Text style={styles.devTechs}>React Native</Text>
-            </View>
-          </Callout>
-        </Marker>
+            <Image style={styles.avatar} source={{ uri: item.avatar_url }} />
+            <Callout
+              onPress={() => {
+                navigation.navigate('Profile', {
+                  github_username: item.github_username,
+                });
+              }}>
+              <View style={styles.callout}>
+                <Text style={styles.devName}>{item.name}</Text>
+                <Text style={styles.devBio}>{item.bio}</Text>
+                <Text style={styles.devTechs}>{item.techs.join(', ')}</Text>
+              </View>
+            </Callout>
+          </Marker>
+        ))}
       </MapView>
 
       <View style={styles.searchForm}>
@@ -100,9 +123,11 @@ const Main = ({ navigation }) => {
           placeholderTextColor="#999"
           autoCapitalize="words"
           autoCorrect={false}
+          value={techs}
+          onChangeText={setTechs}
         />
 
-        <TouchableOpacity style={styles.loadButton}>
+        <TouchableOpacity style={styles.loadButton} onPress={() => loadDevs()}>
           <Icon name="my-location" size={20} color="#FFF" />
         </TouchableOpacity>
       </View>
