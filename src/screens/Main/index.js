@@ -4,12 +4,15 @@ import {
   Text,
   Image,
   Platform,
+  TextInput,
   Dimensions,
+  TouchableOpacity,
   PermissionsAndroid,
 } from 'react-native';
 
-import MapView, { Marker, Callout } from 'react-native-maps';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import Geolocation from 'react-native-geolocation-service';
+import MapView, { Marker, Callout } from 'react-native-maps';
 
 import styles from './styles';
 
@@ -65,28 +68,45 @@ const Main = ({ navigation }) => {
   }
 
   return (
-    <MapView style={styles.mapView} initialRegion={currentRegion}>
-      <Marker coordinate={{ latitude: -22.9408845, longitude: -47.0680438 }}>
-        <Image
-          style={styles.avatar}
-          source={{
-            uri: 'https://avatars3.githubusercontent.com/u/51930261?s=460&v=4',
-          }}
+    <>
+      <MapView style={styles.mapView} initialRegion={currentRegion}>
+        <Marker coordinate={{ latitude: -22.9408845, longitude: -47.0680438 }}>
+          <Image
+            style={styles.avatar}
+            source={{
+              uri:
+                'https://avatars3.githubusercontent.com/u/51930261?s=460&v=4',
+            }}
+          />
+          <Callout
+            onPress={() => {
+              navigation.navigate('Profile', {
+                github_username: 'andrefangeloni',
+              });
+            }}>
+            <View style={styles.callout}>
+              <Text style={styles.devName}>André Angeloni</Text>
+              <Text style={styles.devBio}>React Native Developer</Text>
+              <Text style={styles.devTechs}>React Native</Text>
+            </View>
+          </Callout>
+        </Marker>
+      </MapView>
+
+      <View style={styles.searchForm}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Buscar Devs por Techs..."
+          placeholderTextColor="#999"
+          autoCapitalize="words"
+          autoCorrect={false}
         />
-        <Callout
-          onPress={() => {
-            navigation.navigate('Profile', {
-              github_username: 'andrefangeloni',
-            });
-          }}>
-          <View style={styles.callout}>
-            <Text style={styles.devName}>André Angeloni</Text>
-            <Text style={styles.devBio}>React Native Developer</Text>
-            <Text style={styles.devTechs}>React Native</Text>
-          </View>
-        </Callout>
-      </Marker>
-    </MapView>
+
+        <TouchableOpacity style={styles.loadButton}>
+          <Icon name="my-location" size={20} color="#FFF" />
+        </TouchableOpacity>
+      </View>
+    </>
   );
 };
 
