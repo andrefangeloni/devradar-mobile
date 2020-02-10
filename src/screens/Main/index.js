@@ -15,6 +15,7 @@ import Geolocation from 'react-native-geolocation-service';
 import MapView, { Marker, Callout } from 'react-native-maps';
 
 import api from '../../services/api';
+import { connect, disconnect, subscribeToNewDevs } from '../../services/socket';
 
 import styles from './styles';
 
@@ -35,6 +36,10 @@ const Main = ({ navigation }) => {
 
     loadInitialPosition();
   }, []);
+
+  useEffect(() => {
+    subscribeToNewDevs(item => setDevs([...devs, item]));
+  }, [devs]);
 
   const loadInitialPosition = async () => {
     Geolocation.getCurrentPosition(
@@ -73,6 +78,18 @@ const Main = ({ navigation }) => {
     setCurrentRegion(region);
   };
 
+  const setupWebsocket = () => {
+    disconnect();
+
+    const { latitude, longitude } = currentRegion;
+
+    connect(
+      latitude,
+      longitude,
+      techs,
+    );
+  };
+
   const loadDevs = async () => {
     const { latitude, longitude } = currentRegion;
 
@@ -84,6 +101,7 @@ const Main = ({ navigation }) => {
       },
     });
     setDevs(response.data.devs);
+    setupWebsocket();
   };
 
   return (
